@@ -39,8 +39,8 @@ describe('Yarn Berry (v2+) lockfile parser', () => {
         assert.ok(lodashEntry, 'should have lodash package');
         const [, lodash] = lodashEntry;
         assert.equal(lodash.version, '4.17.21');
-        assert.ok(lodash.resolution, 'should have resolution field');
-        assert.ok(lodash.checksum, 'should have checksum field');
+        assert.ok(lodash.resolved, 'should have resolved field');
+        assert.ok(lodash.integrity, 'should have integrity field');
       });
 
       it(`should handle dependencies in ${dir}`, async () => {

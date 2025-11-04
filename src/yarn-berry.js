@@ -34,8 +34,27 @@ export function parseYarnBerryLockfile(content) {
     yarnVersion = 4;
   }
 
-  // Extract packages (everything except __metadata)
-  const { __metadata, ...packages } = data;
+  // Extract and normalize packages (everything except __metadata)
+  const { __metadata, ...rawPackages } = data;
+  const packages = {};
+
+  for (const [key, pkg] of Object.entries(rawPackages)) {
+    packages[key] = {
+      version: pkg.version || null,
+      resolved: pkg.resolution || null,  // Map resolution to resolved
+      integrity: pkg.checksum || null,   // Map checksum to integrity
+      dependencies: pkg.dependencies || {},
+      devDependencies: pkg.devDependencies || {},
+      optionalDependencies: pkg.optionalDependencies || {},
+      peerDependencies: pkg.peerDependencies || {},
+      engines: pkg.engines || {},
+      // Preserve Yarn Berry-specific fields
+      languageName: pkg.languageName,
+      linkType: pkg.linkType,
+      bin: pkg.bin,
+      conditions: pkg.conditions
+    };
+  }
 
   return {
     type: 'yarn',

@@ -17,12 +17,33 @@ export function parseNpmLockfile(content) {
     throw new Error('Invalid npm lockfile: missing lockfileVersion or packages field');
   }
 
+  // Normalize package structure
+  const packages = {};
+  for (const [key, pkg] of Object.entries(data.packages || {})) {
+    packages[key] = {
+      version: pkg.version || null,
+      resolved: pkg.resolved || null,
+      integrity: pkg.integrity || null,
+      dependencies: pkg.dependencies || {},
+      devDependencies: pkg.devDependencies || {},
+      optionalDependencies: pkg.optionalDependencies || {},
+      peerDependencies: pkg.peerDependencies || {},
+      engines: pkg.engines || {},
+      // Preserve other npm-specific fields
+      license: pkg.license,
+      bin: pkg.bin,
+      funding: pkg.funding,
+      cpu: pkg.cpu,
+      os: pkg.os
+    };
+  }
+
   return {
     type: 'npm',
     lockfileVersion: data.lockfileVersion,
     name: data.name,
     version: data.version,
-    packages: data.packages || {},
+    packages,
     dependencies: data.dependencies,
     requires: data.requires
   };

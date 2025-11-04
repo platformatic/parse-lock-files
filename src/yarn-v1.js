@@ -35,7 +35,11 @@ export function parseYarnV1Lockfile(content) {
         version: null,
         resolved: null,
         integrity: null,
-        dependencies: {}
+        dependencies: {},
+        devDependencies: {},
+        optionalDependencies: {},
+        peerDependencies: {},
+        engines: {}
       };
       packages[packageDeclaration] = currentPackage;
       currentField = null;

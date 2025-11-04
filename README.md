@@ -125,11 +125,36 @@ Detects the type of lockfile from its content.
 
 **Returns:** `'npm'`, `'yarn-v1'`, `'yarn-berry'`, `'pnpm'`, or `null`
 
+### Normalized Package Structure
+
+All parsers return packages in a normalized structure with the following core fields:
+
+```javascript
+{
+  version: string,              // Resolved version number
+  resolved: string,             // Download URL or resolution string
+  integrity: string,            // Integrity/checksum hash
+  dependencies: object,         // Runtime dependencies
+  devDependencies: object,      // Development dependencies
+  optionalDependencies: object, // Optional dependencies
+  peerDependencies: object,     // Peer dependencies
+  engines: object,              // Engine requirements
+  // ... plus format-specific fields
+}
+```
+
+Each lockfile format may include additional format-specific fields:
+- **npm**: `license`, `bin`, `funding`, `cpu`, `os`
+- **Yarn Berry**: `languageName`, `linkType`, `bin`, `conditions`
+- **pnpm**: `dev`, `optional`, `hasBin`, `cpu`, `os`
+
 ### Parser-Specific Functions
 
 #### `parseNpmLockfile(content: string)`
 
 Parses npm `package-lock.json` (lockfileVersion 3+).
+
+**Package Keys:** `"node_modules/package-name"`
 
 **Returns:**
 ```javascript
@@ -138,16 +163,9 @@ Parses npm `package-lock.json` (lockfileVersion 3+).
   lockfileVersion: number,
   name: string,
   version: string,
-  packages: {
-    [key: string]: {
-      version: string,
-      resolved: string,
-      integrity: string,
-      dependencies: object,
-      devDependencies: object,
-      // ... other fields
-    }
-  }
+  packages: { [key: string]: NormalizedPackage },
+  dependencies: object,
+  requires: object
 }
 ```
 
@@ -155,27 +173,22 @@ Parses npm `package-lock.json` (lockfileVersion 3+).
 
 Parses Yarn v1 `yarn.lock` files.
 
+**Package Keys:** `"package@version-range"` (e.g., `"lodash@^4.0.0"`)
+
 **Returns:**
 ```javascript
 {
   type: 'yarn',
   version: 1,
-  packages: {
-    [key: string]: {
-      version: string,
-      resolved: string,
-      integrity: string,
-      dependencies: object,
-      optionalDependencies: object,
-      peerDependencies: object
-    }
-  }
+  packages: { [key: string]: NormalizedPackage }
 }
 ```
 
 #### `parseYarnBerryLockfile(content: string)`
 
 Parses Yarn Berry (v2, v3, v4) `yarn.lock` files.
+
+**Package Keys:** `"package@npm:version-range"` (e.g., `"lodash@npm:^4.0.0"`)
 
 **Returns:**
 ```javascript
@@ -186,22 +199,15 @@ Parses Yarn Berry (v2, v3, v4) `yarn.lock` files.
     version: number,
     cacheKey: string
   },
-  packages: {
-    [key: string]: {
-      version: string,
-      resolution: string,
-      dependencies: object,
-      checksum: string,
-      languageName: string,
-      linkType: string
-    }
-  }
+  packages: { [key: string]: NormalizedPackage }
 }
 ```
 
 #### `parsePnpmLockfile(content: string)`
 
 Parses pnpm `pnpm-lock.yaml` files (v7, v8, v9, v10).
+
+**Package Keys:** `"package@version"` (e.g., `"lodash@4.17.21"`)
 
 **Returns:**
 ```javascript
@@ -213,17 +219,7 @@ Parses pnpm `pnpm-lock.yaml` files (v7, v8, v9, v10).
   dependencies: object,
   devDependencies: object,
   specifiers: object, // v7
-  packages: {
-    [key: string]: {
-      version: string,
-      resolution: object,
-      dependencies: object,
-      devDependencies: object,
-      engines: object,
-      dev: boolean,
-      optional: boolean
-    }
-  },
+  packages: { [key: string]: NormalizedPackage },
   snapshots: object // v9+ dependency trees
 }
 ```

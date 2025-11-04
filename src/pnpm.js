@@ -47,18 +47,25 @@ export function parsePnpmLockfile(content) {
       // Get snapshot data if available (pnpm v9+)
       const snapshot = data.snapshots?.[key];
 
+      // Normalize structure
+      const resolution = value.resolution || {};
       packages[key] = {
         version: version || null,
-        resolution: value.resolution,
+        resolved: resolution.tarball || null,  // Extract tarball URL if present
+        integrity: resolution.integrity || null,  // Extract integrity from resolution
         // Merge dependencies from both packages and snapshots sections
         // snapshots has the actual dependency tree in v9+
         dependencies: snapshot?.dependencies || value.dependencies || {},
         devDependencies: snapshot?.devDependencies || value.devDependencies || {},
         optionalDependencies: snapshot?.optionalDependencies || value.optionalDependencies || {},
         peerDependencies: value.peerDependencies || {},
-        engines: value.engines,
+        engines: value.engines || {},
+        // Preserve pnpm-specific fields
         dev: value.dev,
-        optional: snapshot?.optional || value.optional
+        optional: snapshot?.optional || value.optional,
+        hasBin: value.hasBin,
+        cpu: value.cpu,
+        os: value.os
       };
     }
   }
