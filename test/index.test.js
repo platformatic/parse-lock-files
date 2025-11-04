@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parseLockfile, detectLockfileType, findAndParseLockfile } from '../src/index.js';
+import { parseLockfile, detectLockfileType, findLockfile, findAndParseLockfile } from '../src/index.js';
 
 const fixturesDir = join(import.meta.dirname, '../fixtures');
 
@@ -73,6 +73,43 @@ describe('Unified API', () => {
       assert.throws(() => {
         parseLockfile('random content');
       }, /Unable to detect lockfile type/);
+    });
+  });
+
+  describe('findLockfile', () => {
+    it('should find npm lockfile in directory', async () => {
+      const lockfilePath = await findLockfile(join(fixturesDir, 'npm'));
+
+      assert.ok(lockfilePath);
+      assert.ok(lockfilePath.endsWith('package-lock.json'));
+    });
+
+    it('should find Yarn lockfile in directory', async () => {
+      const lockfilePath = await findLockfile(join(fixturesDir, 'yarn-v1'));
+
+      assert.ok(lockfilePath);
+      assert.ok(lockfilePath.endsWith('yarn.lock'));
+    });
+
+    it('should find pnpm lockfile in directory', async () => {
+      const lockfilePath = await findLockfile(join(fixturesDir, 'pnpm'));
+
+      assert.ok(lockfilePath);
+      assert.ok(lockfilePath.endsWith('pnpm-lock.yaml'));
+    });
+
+    it('should prioritize npm over other lockfiles', async () => {
+      // npm fixture has package-lock.json, should find that first
+      const lockfilePath = await findLockfile(join(fixturesDir, 'npm'));
+
+      assert.ok(lockfilePath.endsWith('package-lock.json'));
+    });
+
+    it('should throw error if no lockfile found', async () => {
+      await assert.rejects(
+        async () => await findLockfile('/tmp/nonexistent'),
+        /No lockfile found/
+      );
     });
   });
 

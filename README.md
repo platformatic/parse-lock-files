@@ -28,9 +28,25 @@ npm install parse-lock-files
 
 ## Usage
 
+### Find Lockfile in Directory
+
+Find the lockfile in a directory without parsing it:
+
+```javascript
+import { findLockfile } from 'parse-lock-files';
+
+const lockfilePath = await findLockfile('./my-project');
+// Returns: '/absolute/path/to/package-lock.json' (or yarn.lock, or pnpm-lock.yaml)
+```
+
+The function searches for lockfiles in this order:
+1. `package-lock.json`
+2. `yarn.lock`
+3. `pnpm-lock.yaml`
+
 ### Find and Parse Lockfile in Directory
 
-The easiest way to use this library is to point it at a directory and let it find and parse the lockfile:
+Find and parse the lockfile in one step:
 
 ```javascript
 import { findAndParseLockfile } from 'parse-lock-files';
@@ -90,9 +106,26 @@ const pnpmResult = parsePnpmLockfile(pnpmContent);
 
 ## API
 
+### `findLockfile(directory: string): Promise<string>`
+
+Finds a lockfile in the given directory and returns its path. Searches for `package-lock.json`, `yarn.lock`, and `pnpm-lock.yaml` in that order.
+
+**Parameters:**
+- `directory`: Path to the directory containing a lockfile
+
+**Returns:** Promise resolving to the absolute path of the found lockfile
+
+**Throws:** Error if no lockfile is found in the directory
+
+**Example:**
+```javascript
+const lockfilePath = await findLockfile('./my-project');
+// '/absolute/path/to/my-project/package-lock.json'
+```
+
 ### `findAndParseLockfile(directory: string): Promise<object>`
 
-Finds a lockfile in the given directory, automatically detects its type, and parses it. Searches for `package-lock.json`, `yarn.lock`, and `pnpm-lock.yaml` in that order.
+Finds a lockfile in the given directory, automatically detects its type, and parses it. Internally uses `findLockfile()` to locate the file.
 
 **Parameters:**
 - `directory`: Path to the directory containing a lockfile

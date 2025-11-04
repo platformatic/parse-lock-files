@@ -67,12 +67,12 @@ export function parseLockfile(content) {
 }
 
 /**
- * Find and read a lockfile from a directory, detect its type, and parse it
+ * Find a lockfile in a directory
  * @param {string} directory - Path to the directory containing the lockfile
- * @returns {Promise<object>} Parsed lockfile data with type information
+ * @returns {Promise<string>} Path to the found lockfile
  * @throws {Error} If no lockfile is found in the directory
  */
-export async function findAndParseLockfile(directory) {
+export async function findLockfile(directory) {
   // List of lockfiles to search for, in order of preference
   const lockfileNames = [
     'package-lock.json',
@@ -85,9 +85,8 @@ export async function findAndParseLockfile(directory) {
     const lockfilePath = join(directory, lockfileName);
     try {
       await access(lockfilePath);
-      // File exists, read and parse it
-      const content = await readFile(lockfilePath, 'utf-8');
-      return parseLockfile(content);
+      // File exists, return its path
+      return lockfilePath;
     } catch {
       // File doesn't exist, try the next one
       continue;
@@ -95,6 +94,18 @@ export async function findAndParseLockfile(directory) {
   }
 
   throw new Error(`No lockfile found in directory: ${directory}`);
+}
+
+/**
+ * Find and read a lockfile from a directory, detect its type, and parse it
+ * @param {string} directory - Path to the directory containing the lockfile
+ * @returns {Promise<object>} Parsed lockfile data with type information
+ * @throws {Error} If no lockfile is found in the directory
+ */
+export async function findAndParseLockfile(directory) {
+  const lockfilePath = await findLockfile(directory);
+  const content = await readFile(lockfilePath, 'utf-8');
+  return parseLockfile(content);
 }
 
 // Export individual parsers for direct use
