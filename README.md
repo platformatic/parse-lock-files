@@ -217,27 +217,16 @@ Parses pnpm `pnpm-lock.yaml` files (v7, v8, v9, v10).
     [key: string]: {
       version: string,
       resolution: object,
-      dependencies: object, // Note: v9+ has limitations
+      dependencies: object,
       devDependencies: object,
       engines: object,
       dev: boolean,
       optional: boolean
     }
-  }
+  },
+  snapshots: object // v9+ dependency trees
 }
 ```
-
-## Known Limitations
-
-### pnpm v9+ Dependencies
-
-pnpm v9 and v10 use a YAML format with duplicate keys for storing package metadata and dependencies separately. The standard YAML parser cannot merge these duplicate keys automatically. As a result:
-
-- Package metadata (resolution, engines, etc.) is parsed correctly
-- Dependencies may be empty for some packages in v9+
-- This is a limitation of the YAML specification and parser
-
-For v7 and v8, all dependency information is parsed correctly.
 
 ## Development
 

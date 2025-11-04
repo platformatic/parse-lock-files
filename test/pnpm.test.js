@@ -4,6 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parsePnpmLockfile } from '../src/pnpm.js';
 
+const fixturesDir = join(import.meta.dirname, '../fixtures');
+
 describe('pnpm lockfile parser', () => {
   const versions = [
     { dir: 'pnpm-v7', pnpmVersion: 7, lockfileVersion: '5.4' },
@@ -15,7 +17,7 @@ describe('pnpm lockfile parser', () => {
   for (const { dir, pnpmVersion, lockfileVersion } of versions) {
     describe(`pnpm v${pnpmVersion}`, () => {
       it(`should parse ${dir} pnpm-lock.yaml`, async () => {
-        const lockfilePath = join(process.cwd(), `fixtures/${dir}/pnpm-lock.yaml`);
+        const lockfilePath = join(fixturesDir, `${dir}/pnpm-lock.yaml`);
         const content = await readFile(lockfilePath, 'utf-8');
         const result = parsePnpmLockfile(content);
 
@@ -27,7 +29,7 @@ describe('pnpm lockfile parser', () => {
       });
 
       it(`should extract package information from ${dir}`, async () => {
-        const lockfilePath = join(process.cwd(), `fixtures/${dir}/pnpm-lock.yaml`);
+        const lockfilePath = join(fixturesDir, `${dir}/pnpm-lock.yaml`);
         const content = await readFile(lockfilePath, 'utf-8');
         const result = parsePnpmLockfile(content);
 
@@ -42,7 +44,7 @@ describe('pnpm lockfile parser', () => {
       });
 
       it(`should handle dependencies in ${dir}`, async () => {
-        const lockfilePath = join(process.cwd(), `fixtures/${dir}/pnpm-lock.yaml`);
+        const lockfilePath = join(fixturesDir, `${dir}/pnpm-lock.yaml`);
         const content = await readFile(lockfilePath, 'utf-8');
         const result = parsePnpmLockfile(content);
 
@@ -54,12 +56,7 @@ describe('pnpm lockfile parser', () => {
 
         const bodyParser = packages[bodyParserKey];
         assert.ok(bodyParser.dependencies !== undefined, 'body-parser should have dependencies field');
-
-        // Note: pnpm v9+ uses duplicate YAML keys for dependencies, which the YAML parser
-        // cannot handle without custom parsing. For v7-v8, dependencies should be present.
-        if (pnpmVersion <= 8) {
-          assert.ok(Object.keys(bodyParser.dependencies).length > 0, 'body-parser should have multiple dependencies');
-        }
+        assert.ok(Object.keys(bodyParser.dependencies).length > 0, 'body-parser should have multiple dependencies');
       });
     });
   }

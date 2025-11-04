@@ -9,8 +9,7 @@ export function parsePnpmLockfile(content) {
   let data;
 
   try {
-    // Parse with uniqueKeys: false to handle pnpm's duplicate key format
-    data = YAML.parse(content, { uniqueKeys: false });
+    data = YAML.parse(content);
   } catch (error) {
     throw new Error(`Failed to parse YAML: ${error.message}`);
   }
@@ -21,6 +20,9 @@ export function parsePnpmLockfile(content) {
   }
 
   // Normalize packages format
+  // pnpm v9+ uses two sections:
+  // - packages: Contains metadata (resolution, engines, etc.)
+  // - snapshots: Contains actual dependency trees
   const packages = {};
 
   if (data.packages) {
@@ -42,16 +44,21 @@ export function parsePnpmLockfile(content) {
         }
       }
 
+      // Get snapshot data if available (pnpm v9+)
+      const snapshot = data.snapshots?.[key];
+
       packages[key] = {
         version: version || null,
         resolution: value.resolution,
-        dependencies: value.dependencies || {},
-        devDependencies: value.devDependencies || {},
-        optionalDependencies: value.optionalDependencies || {},
+        // Merge dependencies from both packages and snapshots sections
+        // snapshots has the actual dependency tree in v9+
+        dependencies: snapshot?.dependencies || value.dependencies || {},
+        devDependencies: snapshot?.devDependencies || value.devDependencies || {},
+        optionalDependencies: snapshot?.optionalDependencies || value.optionalDependencies || {},
         peerDependencies: value.peerDependencies || {},
         engines: value.engines,
         dev: value.dev,
-        optional: value.optional
+        optional: snapshot?.optional || value.optional
       };
     }
   }
@@ -64,6 +71,7 @@ export function parsePnpmLockfile(content) {
     dependencies: data.dependencies,
     devDependencies: data.devDependencies,
     specifiers: data.specifiers,
-    packages
+    packages,
+    snapshots: data.snapshots // Include snapshots for reference
   };
 }

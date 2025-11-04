@@ -23,8 +23,7 @@
   ],
   "author": "",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "yaml": "^2.6.1"
-  },
-  "packageManager": "yarn@4.10.3"
+  }
 }
