@@ -1,0 +1,38 @@
+# Test files and fixtures
+test/
+fixtures/
+
+# Development files
+.github/
+.claude/
+.gitignore
+.npmrc
+
+# Build artifacts
+node_modules/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Git
+.git/
+.gitattributes
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+npm-debug.log*
+.env
+.env.local

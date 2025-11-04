@@ -1,6 +1,6 @@
 {
   "name": "parse-lock-files",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Parse lockfiles from npm, yarn, and pnpm",
   "type": "module",
   "main": "src/index.js",
