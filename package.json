@@ -1,0 +1,30 @@
+{
+  "name": "parse-lock-files",
+  "version": "0.0.1",
+  "description": "Parse lockfiles from npm, yarn, and pnpm",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "keywords": [
+    "lockfile",
+    "parser",
+    "npm",
+    "yarn",
+    "pnpm",
+    "package-lock",
+    "yarn-lock",
+    "pnpm-lock"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "yaml": "^2.6.1"
+  },
+  "packageManager": "yarn@4.10.3"
+}
